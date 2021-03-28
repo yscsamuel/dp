@@ -26,8 +26,8 @@ func (ps *Pubsub) Subscribe(channel string) chan string {
 	defer ps.Unlock()
 	// add a new subscription channel
 	ch := make(chan string, buf)
+	log.Infof("channel %v subscribed ", channel)
 	ps.subscribes[channel] = append(ps.subscribes[channel], ch)
-
 	return ch
 }
 
@@ -39,8 +39,6 @@ func (ps *Pubsub) Publish(channel, msg string) {
 	// broadcast to each channel
 	for _, ch := range ps.subscribes[channel] {
 		ch <- msg
-		log.Infof("channel %v subscribed ", channel)
-
 	}
 }
 

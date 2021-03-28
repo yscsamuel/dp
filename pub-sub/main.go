@@ -35,9 +35,9 @@ func (ps *Pubsub) Publish(channel, msg string) {
 	defer ps.RUnlock()
 
 	// broadcast to each channel
-	for n, ch := range ps.subscribes[channel] {
+	for _, ch := range ps.subscribes[channel] {
 		ch <- msg
-		log.Infof("channel %v number %v subscribed ", channel, n)
+		log.Infof("channel %v subscribed ", channel)
 
 	}
 }
@@ -62,6 +62,7 @@ func main() {
 		time.Sleep(1 * time.Millisecond)
 	}
 
+	time.Sleep(1 * time.Millisecond)
 	publish("Hello", "hello message")
 	publish("World", "world message")
 	publish("World", "world message2")

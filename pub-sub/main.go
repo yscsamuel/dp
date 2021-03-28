@@ -12,6 +12,8 @@ type Pubsub struct {
 	subscribes map[string][]chan string
 }
 
+const buf int = 1
+
 // Constructor
 func GetNewPubsub() *Pubsub {
 	return &Pubsub{
@@ -19,11 +21,11 @@ func GetNewPubsub() *Pubsub {
 	}
 }
 
-func (ps *Pubsub) Subscribe(channel string, buffer int) chan string {
+func (ps *Pubsub) Subscribe(channel string) chan string {
 	ps.Lock()
 	defer ps.Unlock()
 	// add a new subscription channel
-	ch := make(chan string, buffer)
+	ch := make(chan string, buf)
 	ps.subscribes[channel] = append(ps.subscribes[channel], ch)
 
 	return ch
@@ -42,16 +44,15 @@ func (ps *Pubsub) Publish(channel, msg string) {
 	}
 }
 
-func Listener(ch chan string) {
-	for msg := range ch {
-		log.Info("got message: ", msg)
-	}
+func Listener(ch <-chan string) {
+	// blocking until receive message
+	log.Info("got message: ", <-ch)
 }
 
 func main() {
 	ps := GetNewPubsub()
-	ch1 := ps.Subscribe("Hello", 1)
-	ch2 := ps.Subscribe("World", 1)
+	ch1 := ps.Subscribe("Hello")
+	ch2 := ps.Subscribe("World")
 
 	go Listener(ch1)
 	go Listener(ch2)
